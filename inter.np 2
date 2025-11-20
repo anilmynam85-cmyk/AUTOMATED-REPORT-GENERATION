@@ -1,0 +1,77 @@
+"""
+# Automated Report Generation - CODTECH Internship Task 2
+This script reads data from a CSV file, analyzes it, and generates a
+formatted PDF report using ReportLab.
+"""
+
+# ## Import Required Libraries
+import pandas as pd
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+
+# ## Function to Read CSV Data
+def read_data(file_path):
+    """
+    ### Reads data from CSV file
+    - Returns a Pandas DataFrame
+    """
+    return pd.read_csv(file_path)
+
+# ## Function to Analyze Data
+def analyze_data(df):
+    """
+    ### Analyzes data:
+    - Finds total rows
+    - Creates statistical summary
+    """
+    analysis = {
+        "Total Rows": len(df),
+        "Summary": df.describe(include='all').to_string()
+    }
+    return analysis
+
+# ## Function to Generate PDF Report
+def generate_pdf(report, output_path="sample_report.pdf"):
+    """
+    ### Creates a PDF report using ReportLab
+    """
+    c = canvas.Canvas(output_path, pagesize=letter)
+    width, height = letter
+
+    y = height - 50
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(50, y, "Automated Report - CODTECH Internship Task 2")
+
+    y -= 40
+    c.setFont("Helvetica", 12)
+    c.drawString(50, y, f"Total Rows: {report['Total Rows']}")
+
+    y -= 30
+    c.drawString(50, y, "Data Summary:")
+
+    # Add summary text line-by-line
+    y -= 20
+    for line in report["Summary"].split("\n"):
+        c.drawString(50, y, line)
+        y -= 15
+        if y < 50:       # New page if space ends
+            c.showPage()
+            y = height - 50
+
+    c.save()
+    print("PDF Report Generated Successfully!")
+
+# ## Main Execution Code
+if __name__ == "__main__":
+    """
+    ### Steps:
+    1. Read data file
+    2. Analyze data
+    3. Generate PDF report
+    """
+
+    data_file = "input_data.csv"   # Change filename if needed
+
+    df = read_data(data_file)
+    report = analyze_data(df)
+    generate_pdf(report)
